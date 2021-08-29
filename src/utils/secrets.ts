@@ -1,37 +1,41 @@
 import * as crypto from 'crypto'
 
+const ivFromEncKey = (encKey: string) => {
+  if (encKey.length < 5) {
+    throw new Error('Your ENC_KEY must be at least 5 characters long')
+  }
+  return encKey.substring(0, 5)
+}
+
 const encrypt = (message: string) => {
-  const algorithm = 'aes256' // or any other algorithm supported by OpenSSL
+  const algorithm = 'aes256'
   const encryptionKey = process.env.ENC_KEY
 
   if (!encryptionKey) {
     throw new Error('ENC_KEY must be defined in your environment variables')
   }
 
-  // eslint-disable-next-line node/no-deprecated-api
-  const cipher = crypto.createCipher(algorithm, encryptionKey)
-  const encrypted = cipher.update(message, 'utf8', 'hex') + cipher.final('hex')
+  const iv = ivFromEncKey(encryptionKey)
 
-  // eslint-disable-next-line no-console
-  console.log(encrypted)
+  const cipher = crypto.createCipheriv(algorithm, encryptionKey, iv)
+  const encrypted = cipher.update(message, 'utf8', 'hex') + cipher.final('hex')
 
   return encrypted
 }
 
 const decrypt = (encryptedMessage: string) => {
-  const algorithm = 'aes256' // or any other algorithm supported by OpenSSL
+  const algorithm = 'aes256'
   const encryptionKey = process.env.ENC_KEY
 
   if (!encryptionKey) {
     throw new Error('ENC_KEY must be defined in your environment variables')
   }
 
-  // eslint-disable-next-line node/no-deprecated-api
-  const decipher = crypto.createDecipher(algorithm, encryptionKey)
-  const decrypted = decipher.update(encryptedMessage, 'hex', 'utf8') + decipher.final('utf8')
+  const iv = ivFromEncKey(encryptionKey)
 
-  // eslint-disable-next-line no-console
-  console.log(decrypted)
+  // eslint-disable-next-line node/no-deprecated-api
+  const decipher = crypto.createDecipheriv(algorithm, encryptionKey, iv)
+  const decrypted = decipher.update(encryptedMessage, 'hex', 'utf8') + decipher.final('utf8')
 
   return decrypted
 }
