@@ -28,7 +28,7 @@ export default class Generate extends Command {
 
     const encryptedValue = encrypt(rawValue)
 
-    const ymlString = dump({[args.secretName]: {secret: true, value: encryptedValue}}, {
+    const ymlString = dump({[`_${args.secretName}`]: encryptedValue}, {
       sortKeys: false,
     })
     fs.appendFileSync(filename, ymlString)

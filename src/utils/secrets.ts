@@ -1,43 +1,50 @@
+import {promisify} from 'util'
+
 import * as crypto from 'crypto'
 
-const ivFromEncKey = (encKey: string) => {
-  if (encKey.length < 5) {
-    throw new Error('Your ENC_KEY must be at least 5 characters long')
-  }
-  return encKey.substring(0, 5)
+const algorithm = 'aes-256-ctr'
+
+const makeEncKey = async () => {
+  const makeRandomBytes = promisify(crypto.randomBytes)
+  const buffer = await makeRandomBytes(32)
+  const token = buffer.toString('base64')
+  return token
 }
 
 const encrypt = (message: string) => {
-  const algorithm = 'aes256'
   const encryptionKey = process.env.ENC_KEY
 
   if (!encryptionKey) {
     throw new Error('ENC_KEY must be defined in your environment variables')
   }
 
-  const iv = ivFromEncKey(encryptionKey)
+  const encKey = Buffer.from(encryptionKey, 'base64')
 
-  const cipher = crypto.createCipheriv(algorithm, encryptionKey, iv)
-  const encrypted = cipher.update(message, 'utf8', 'hex') + cipher.final('hex')
-
-  return encrypted
+  const iv = crypto.randomBytes(16)
+  const cipher = crypto.createCipheriv(algorithm, encKey, iv)
+  let encrypted = cipher.update(message)
+  encrypted = Buffer.concat([encrypted, cipher.final()])
+  return iv.toString('hex') + ':' + encrypted.toString('hex')
 }
 
 const decrypt = (encryptedMessage: string) => {
-  const algorithm = 'aes256'
   const encryptionKey = process.env.ENC_KEY
 
   if (!encryptionKey) {
     throw new Error('ENC_KEY must be defined in your environment variables')
   }
 
-  const iv = ivFromEncKey(encryptionKey)
-
-  // eslint-disable-next-line node/no-deprecated-api
-  const decipher = crypto.createDecipheriv(algorithm, encryptionKey, iv)
-  const decrypted = decipher.update(encryptedMessage, 'hex', 'utf8') + decipher.final('utf8')
-
-  return decrypted
+  const textParts = encryptedMessage.split(':')
+  const ivString = textParts.shift()
+  if (!ivString) {
+    throw new Error('Corrupted value')
+  }
+  const iv = Buffer.from(ivString, 'hex')
+  const encryptedText = Buffer.from(textParts.join(':'), 'hex')
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(encryptionKey, 'base64'), iv)
+  let decrypted = decipher.update(encryptedText)
+  decrypted = Buffer.concat([decrypted, decipher.final()])
+  return decrypted.toString()
 }
 
-export {decrypt, encrypt}
+export {decrypt, encrypt, makeEncKey}
