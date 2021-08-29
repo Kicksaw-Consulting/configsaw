@@ -3,7 +3,7 @@ import {Command} from '@oclif/command'
 import {makeEncKey} from '../utils/secrets'
 
 export default class Generate extends Command {
-  static description = 'Generates a config file for a given stage, if it doesn\'t already exist'
+  static description = 'Generates an encryption key intended for ENC_KEY in your environment variables'
 
   async run() {
     // eslint-disable-next-line no-console

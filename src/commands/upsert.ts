@@ -9,7 +9,7 @@ import {encrypt} from '../utils/secrets'
 import {getConfig} from '../lib'
 
 export default class Generate extends Command {
-  static description = 'Upsert a secret to the environment\'s config file'
+  static description = 'Upsert a configuration key-value pair to the environment\'s config file'
 
   static args = [
     {name: 'key', required: true},
@@ -40,6 +40,6 @@ export default class Generate extends Command {
     })
     fs.writeFileSync(filename, ymlString)
     // eslint-disable-next-line no-console
-    console.log(`${filename} generated successfully`)
+    console.log(`${confValueName} added to ${filename} successfully`)
   }
 }
