@@ -3,6 +3,8 @@ import {Command, flags} from '@oclif/command'
 import {dump} from 'js-yaml'
 import * as fs from 'fs'
 
+import {confFilenameFromEnv, fileExists} from '../utils/files'
+
 export default class Generate extends Command {
   static description = 'Generates a config file for a given stage, if it doesn\'t already exist'
 
@@ -14,21 +16,17 @@ export default class Generate extends Command {
   async run() {
     const {flags} = this.parse(Generate)
 
-    const filename = `confsaw-${flags.environment}.yml`
+    const filename = confFilenameFromEnv(flags.environment)
 
-    fs.stat(filename, function (err, _) {
-      if (err === null) {
-        throw new Error(`${filename} already exists`)
-      } else if (err.code === 'ENOENT') {
-        // file does not exist
-        const ymlString = dump({KEY: 'value'}, {
-          sortKeys: false,
-        })
-        fs.writeFileSync(filename, ymlString)
-      } else {
-        // eslint-disable-next-line no-console
-        console.error('Some other error: ', err.code)
-      }
+    if (fileExists(filename)) {
+      throw new Error(`${filename} already exists`)
+    }
+
+    const ymlString = dump({KEY: 'value'}, {
+      sortKeys: false,
     })
+    fs.writeFileSync(filename, ymlString)
+    // eslint-disable-next-line no-console
+    console.log(`${filename} generated successfully`)
   }
 }
