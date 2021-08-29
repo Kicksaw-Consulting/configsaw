@@ -3,20 +3,21 @@ import {Command, flags} from '@oclif/command'
 import {dump} from 'js-yaml'
 import * as fs from 'fs'
 
-import {confFilenameFromEnv} from '../utils/files'
+import {confFilenameFromEnv, fileExists} from '../utils/files'
 import {encrypt} from '../utils/secrets'
+
+import {getConfig} from '../lib'
 
 export default class Generate extends Command {
   static description = 'Upsert a secret to the environment\'s config file'
 
   static args = [
-    {name: 'secretName', required: true},
-    {name: 'secretValue', required: true},
+    {name: 'key', required: true},
+    {name: 'value', required: true},
   ]
 
   static flags = {
     help: flags.help({char: 'h'}),
-    secret: flags.boolean({char: 's', default: false}),
     environment: flags.string({char: 'e', description: 'environment to add the secret to', default: 'dev'}),
   }
 
@@ -25,14 +26,19 @@ export default class Generate extends Command {
 
     const filename = confFilenameFromEnv(flags.environment)
 
-    const rawValue = args.secretValue
+    const rawValue = args.value
 
-    const secretObj = flags.secret ? {[`_${args.secretName}`]: encrypt(rawValue)} : {[args.secretName]: rawValue}
+    const confValueName: string = args.key
+    const confValueValue: string = confValueName.startsWith('_') ? encrypt(rawValue) : rawValue
 
-    const ymlString = dump(secretObj, {
+    const newConfgValue = {[confValueName]: confValueValue}
+
+    const config = fileExists(filename) ? {...getConfig(flags.environment), ...newConfgValue} : newConfgValue
+
+    const ymlString = dump(config, {
       sortKeys: false,
     })
-    fs.appendFileSync(filename, ymlString)
+    fs.writeFileSync(filename, ymlString)
     // eslint-disable-next-line no-console
     console.log(`${filename} generated successfully`)
   }
