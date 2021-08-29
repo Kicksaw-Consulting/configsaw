@@ -3,7 +3,8 @@ import {Command, flags} from '@oclif/command'
 import {dump} from 'js-yaml'
 import * as fs from 'fs'
 
-import {fileExists, confFilenameFromEnv} from '../utils/files'
+import {confFilenameFromEnv} from '../utils/files'
+import {encrypt} from '../utils/secrets'
 
 export default class Generate extends Command {
   static description = 'Upsert a secret to the environment\'s config file'
@@ -23,13 +24,11 @@ export default class Generate extends Command {
 
     const filename = confFilenameFromEnv(flags.environment)
 
-    if (!fileExists(filename)) {
-      throw new Error(`${filename} does not exist`)
-    }
-
     const rawValue = args.secretValue
 
-    const ymlString = dump({[args.secretName]: rawValue}, {
+    const encryptedValue = encrypt(rawValue)
+
+    const ymlString = dump({[args.secretName]: {secret: true, value: encryptedValue}}, {
       sortKeys: false,
     })
     fs.appendFileSync(filename, ymlString)
