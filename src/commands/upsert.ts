@@ -16,6 +16,7 @@ export default class Generate extends Command {
 
   static flags = {
     help: flags.help({char: 'h'}),
+    secret: flags.boolean({char: 's', default: false}),
     environment: flags.string({char: 'e', description: 'environment to add the secret to', default: 'dev'}),
   }
 
@@ -26,9 +27,9 @@ export default class Generate extends Command {
 
     const rawValue = args.secretValue
 
-    const encryptedValue = encrypt(rawValue)
+    const secretObj = flags.secret ? {[`_${args.secretName}`]: encrypt(rawValue)} : {[args.secretName]: rawValue}
 
-    const ymlString = dump({[`_${args.secretName}`]: encryptedValue}, {
+    const ymlString = dump(secretObj, {
       sortKeys: false,
     })
     fs.appendFileSync(filename, ymlString)
