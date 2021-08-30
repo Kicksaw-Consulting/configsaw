@@ -12,6 +12,6 @@ export default class Generate extends Command {
     // eslint-disable-next-line no-console
     console.log(encKey)
     // eslint-disable-next-line no-console
-    console.log('Please use this to encrypt secrets in your intended confsaw-<env>.yml and store it somewhere safe')
+    console.log('Please use this to encrypt secrets in your intended configsaw-<env>.yml and store it somewhere safe')
   }
 }

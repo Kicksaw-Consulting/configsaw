@@ -2,7 +2,7 @@ import * as fs from 'fs'
 
 import {load} from 'js-yaml'
 
-type confsawConfig =  {[key: string]: string}
+type configsawConfig =  {[key: string]: string}
 
 const fileExists = (filename: string) => {
   try {
@@ -14,12 +14,12 @@ const fileExists = (filename: string) => {
 }
 
 const confFilenameFromEnv = (env: string) => {
-  return `confsaw-${env}.yml`
+  return `configsaw-${env}.yml`
 }
 
 const readYml = (filename: string) => {
   const fileContents = fs.readFileSync(filename)
-  const data = load(fileContents.toString()) as confsawConfig
+  const data = load(fileContents.toString()) as configsawConfig
   return data
 }
 

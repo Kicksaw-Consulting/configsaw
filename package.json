@@ -1,12 +1,12 @@
 {
-  "name": "confsaw",
+  "name": "configsaw",
   "description": "A configuration library for JavaScript, by Kicksaw",
   "version": "0.0.0",
   "author": "Alex Drozd alex@kicksaw.com",
   "bin": {
-    "confsaw": "./bin/run"
+    "configsaw": "./bin/run"
   },
-  "bugs": "https://github.com/Kicksaw-Consulting/confsaw/issues",
+  "bugs": "https://github.com/Kicksaw-Consulting/configsaw/issues",
   "dependencies": {
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
@@ -36,7 +36,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/Kicksaw-Consulting/confsaw",
+  "homepage": "https://github.com/Kicksaw-Consulting/configsaw",
   "keywords": [
     "oclif"
   ],
@@ -44,12 +44,12 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "confsaw",
+    "bin": "configsaw",
     "plugins": [
       "@oclif/plugin-help"
     ]
   },
-  "repository": "Kicksaw-Consulting/confsaw",
+  "repository": "Kicksaw-Consulting/configsaw",
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
     "posttest": "eslint . --ext .ts --config .eslintrc",
